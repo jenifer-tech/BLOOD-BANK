@@ -227,21 +227,17 @@ def update(id):
 
 @app.route("/deletedonar",methods=['DELETE'])
 def delete():
-    if request.method=="DELETE":
-
-        a,b=exe_query('con','cursor')  
-        new_email=request.form['email']
-        b.execute("""SELECT * FROM blood where email=%s""",(new_email,)) 
-        account=b.fetchone()      
-        if account:
-            sql_del="""DELETE FROM blood WHERE email=%s""" 
-            b.execute(sql_del,(new_email,))
-            a.commit()
-            return jsonify({"message":"Blood donar {} account  has been deleted  successfully!.".format(new_email)}),200
-        else:    
-            return jsonify({"message":"Please enter correct Email Id "}),401 
-    if not request.method=="DELETE":        
-        return "select delete method"
+    a,b=exe_query('con','cursor')  
+    new_email=request.form['email']
+    b.execute("""SELECT * FROM blood where email=%s""",(new_email,)) 
+    account=b.fetchone()      
+    if account:
+        sql_del="""DELETE FROM blood WHERE email=%s""" 
+        b.execute(sql_del,(new_email,))
+        a.commit()
+        return jsonify({"message":"Blood donar {} account  has been deleted  successfully!.".format(new_email)}),200
+    else:    
+        return jsonify({"message":"Please enter correct Email Id "}),401 
 
 
 if __name__=='__main__':
