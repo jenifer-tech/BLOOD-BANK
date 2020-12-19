@@ -202,7 +202,7 @@ def searchdonnar():
             return jsonify({"message":single}),200
         return jsonify({"message":"Invalid E-mail address!"}),400
 
-    return jsonify({"message":"Please select any location or blood group or gender"}),200
+    return jsonify({"message":"Please select any location or blood group or gender or email address "}),200
  
             
 @app.route("/updatedonar/<int:id>",methods=['PUT'])
