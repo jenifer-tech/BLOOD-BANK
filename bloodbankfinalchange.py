@@ -44,7 +44,13 @@ def validation(new_name,new_location,new_email,new_gender,new_mobileno,new_blood
     elif not re.match (r'^(a|b|ab|o)[+-]$',new_bloodgroup):   
         return "Invalid blood group " 
 
+
+
+  
+
     
+   
+      
 @app.route("/adddonar",methods=["POST"])  
 def adddonar():
     a,b=exe_query('con','cursor')
@@ -71,71 +77,39 @@ def adddonar():
         a.commit()
         return jsonify({"message":"Blood Donar {} ({}) added successfully!".format(new_name,new_bloodgroup)}),201
 
+def filter(q, andFlag, qLabel, qParam):   
+    y = ""
+    if qParam != None:
 
+        y = " %s= '%s' " % (qLabel,qParam,)
+
+        if andFlag:
+            y = " and " + y
+        andFlag = True
+
+    c=" %s %s " % (q,y)
+    return c,andFlag
 
 @app.route("/searchdonar",methods=['POST'])
 def searchdonnar():
-    
-    
+    a,b=exe_query('con','cursor')
     new_bloodgroup=request.form.get('bloodgroup')
     new_location=request.form.get('location') 
-    new_gender=request.form.get('gender') 
-    new_email=request.form.get('email')
-    a,b=exe_query('con','cursor')  
-
-    x="SELECT * FROM blood where"    
-    if new_bloodgroup and new_gender and new_location:   
-        y1="location=%s and  bloodgroup=%s and  gender=%s"  
-        c1="% s % s" % (x, y1)       
-        b.execute(c1,(new_location , new_bloodgroup , new_gender,))
-        account=b.fetchall()              
-        return jsonify(account),200       
-    elif new_bloodgroup and new_gender: 
-        y2=" bloodgroup=%s and  gender=%s"
-        c2="%s%s" % (x,y2)
-        b.execute(c2,(new_bloodgroup , new_gender,))
-        account=b.fetchall()              
-        return jsonify(account),200   
-    elif new_bloodgroup and new_location:
-        y3="bloodgroup=%s and location=%s"
-        c3="% s % s" % (x,y3)
-        b.execute(c3,(new_bloodgroup,new_location))
-        account=b.fetchall()              
-        return jsonify(account),200   
-    elif new_location and new_gender:
-        y4="location=%s and gender=%s"
-        c4="% s % s" % (x,y4)
-        b.execute(c4,(new_location,new_gender))
-        account=b.fetchall()              
-        return jsonify(account),200  
-   
-    elif new_bloodgroup:
-        y5="bloodgroup=%s"    
-        c5="%s %s" % (x,y5)
-        b.execute(c5,(new_bloodgroup))
-        account=b.fetchall()
-        return jsonify(account),200
-
-    elif new_gender:
-        y6="gender=%s"    
-        c6="%s %s" % (x,y6)
-        b.execute(c6,(new_gender))
-        account=b.fetchall()
-        return jsonify(account),200
-
-    elif new_location:
-        y7="location=%s"    
-        c7="%s %s" % (x,y7)
-        b.execute(c7,(new_location))
-        account=b.fetchall()
-        return jsonify(account),200
-    elif new_email:
-        y8="email=%s"    
-        c8="%s %s" % (x,y8)
-        b.execute(c8,(new_email))
-        account=b.fetchall()
-        return jsonify(account),200    
-    return jsonify({"message":"Please....You have select valid resonse!"})
+    new_gender=request.form.get('gender')
+    q="SELECT * FROM blood where" 
+    andFlag=False
+    q,andFlag= filter(q, andFlag, "bloodgroup", new_bloodgroup)
+    q,andFlag = filter(q,andFlag,"location",new_location) 
+    q,andFlag = filter(q,andFlag,"gender",new_gender)   
+    if andFlag==False: 
+       q=" ".join(q.split()[:-1])  
+       b.execute(q)
+       res=b.fetchall()
+       return jsonify(res),200
+    else:       
+        b.execute(q)
+        result=b.fetchall()
+        return jsonify(result),200  
 
 @app.route("/updatedonar/<int:id>",methods=['PUT'])
 def update(id):
